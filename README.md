@@ -2,8 +2,6 @@
 
 > A modern, full-stack library management system powered by AI and built for the modern reader.
 
-**Author:** [devrajsinh2012](https://github.com/devrajsinh2012) — djgohil2012@gmail.com
-
 ---
 
 ## Overview

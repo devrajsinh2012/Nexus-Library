@@ -1,20 +1,21 @@
+// Author: devrajsinh2012 <djgohil2012@gmail.com>
 import type { Express } from "express";
 import type { Server } from "http";
 import { storage } from "./storage";
 import { api } from "@shared/routes";
 import { z } from "zod";
-import { setupAuth, registerAuthRoutes, isAuthenticated } from "./replit_integrations/auth";
-import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
-import { openai } from "./replit_integrations/image/client"; 
+import { setupAuth, registerAuthRoutes, isAuthenticated } from "./auth";
+import OpenAI from "openai";
+
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
-  // Auth & Storage
+  // Auth
   await setupAuth(app);
   registerAuthRoutes(app);
-  registerObjectStorageRoutes(app);
 
   app.get(api.books.list.path, async (req, res) => {
     const search = req.query.search as string;

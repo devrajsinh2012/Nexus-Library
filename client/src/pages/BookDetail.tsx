@@ -10,12 +10,21 @@ import { Loader2, ArrowLeft, BrainCircuit, CheckCircle2, Clock } from "lucide-re
 import { Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 
+function getSpineColor(title: string): string {
+  const colors = [
+    'hsl(25, 35%, 32%)', 'hsl(145, 25%, 28%)', 'hsl(220, 30%, 35%)',
+    'hsl(0, 35%, 35%)', 'hsl(35, 40%, 30%)', 'hsl(280, 20%, 35%)',
+  ];
+  const hash = title.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+  return colors[hash % colors.length];
+}
+
 export default function BookDetail() {
   const { id } = useParams<{ id: string }>();
   const { data: book, isLoading, error } = useBook(id);
   const { mutate: createLoan, isPending: isLoaning } = useCreateLoan();
   const { mutate: createHold, isPending: isHolding } = useCreateHold();
-  const { mutate: generateSummary, isPending: isGenerating, data: aiSummary, isSuccess: hasGenerated } = useAiSummary();
+  const { mutate: generateSummary, isPending: isGenerating, data: aiSummary } = useAiSummary();
   const { isAuthenticated } = useAuth();
   const { toast } = useToast();
 
@@ -44,6 +53,7 @@ export default function BookDetail() {
 
   const isAvailable = book.availableCopies > 0;
   const coverUrl = book.coverUrl || `https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=800&auto=format&fit=crop`;
+  const spineColor = getSpineColor(book.title);
 
   const handleAction = () => {
     if (!isAuthenticated) {
@@ -90,7 +100,6 @@ export default function BookDetail() {
     generateSummary(book.id);
   };
 
-  // Determine what summary to show: freshly generated one, existing one, or description
   const displaySummary = aiSummary || book.aiSummary;
 
   return (
@@ -101,20 +110,31 @@ export default function BookDetail() {
         </Link>
 
         <div className="grid md:grid-cols-[1fr_2fr] gap-12 lg:gap-20">
-          {/* Left Column: Cover & Actions */}
-          <motion.div 
+          {/* Left Column: 3D Book Cover & Actions */}
+          <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             className="flex flex-col gap-8"
           >
-            <div className="relative aspect-[2/3] w-full rounded-2xl overflow-hidden book-shadow border border-border/20">
-              <img 
-                src={coverUrl} 
-                alt={book.title}
-                className="h-full w-full object-cover"
-              />
+            {/* 3D Book Display */}
+            <div className="flex justify-center">
+              <div className="book-3d-hero" style={{ width: '280px', height: '420px' }}>
+                <div className="book-3d-inner w-full h-full">
+                  <div className="book-3d-spine" style={{ background: spineColor }} />
+                  <div className="book-3d-pages" />
+                  <div className="book-3d-bottom" />
+                  <div className="book-3d-cover w-full h-full">
+                    <img
+                      src={coverUrl}
+                      alt={book.title}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
 
+            {/* Actions Card */}
             <div className="bg-card border border-border/50 rounded-2xl p-6 shadow-sm">
               <div className="flex items-center justify-between mb-6">
                 <span className="text-sm font-medium text-muted-foreground">Status</span>
@@ -125,28 +145,28 @@ export default function BookDetail() {
                   {isAvailable ? 'Available Now' : 'Waitlist Only'}
                 </span>
               </div>
-              
+
               <div className="flex justify-between text-sm mb-6 border-y border-border/50 py-4">
-                <div className="text-center">
+                <div className="text-center flex-1">
                   <p className="font-bold text-2xl text-foreground">{book.availableCopies}</p>
-                  <p className="text-muted-foreground">Available</p>
+                  <p className="text-muted-foreground text-xs mt-1">Available</p>
                 </div>
-                <div className="w-px bg-border/50"></div>
-                <div className="text-center">
+                <div className="w-px bg-border/50" />
+                <div className="text-center flex-1">
                   <p className="font-bold text-2xl text-foreground">{book.totalCopies}</p>
-                  <p className="text-muted-foreground">Total</p>
+                  <p className="text-muted-foreground text-xs mt-1">Total Copies</p>
                 </div>
               </div>
 
-              <Button 
-                className="w-full h-12 text-base rounded-xl shadow-md" 
+              <Button
+                className="w-full h-12 text-base rounded-xl shadow-md"
                 size="lg"
                 variant={isAvailable ? "default" : "secondary"}
                 onClick={handleAction}
                 disabled={isLoaning || isHolding}
               >
                 {isLoaning || isHolding ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : null}
-                {isAuthenticated 
+                {isAuthenticated
                   ? (isAvailable ? "Checkout Volume" : "Place on Hold")
                   : "Sign in to Borrow"
                 }
@@ -155,50 +175,54 @@ export default function BookDetail() {
           </motion.div>
 
           {/* Right Column: Details */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
             className="flex flex-col"
           >
-            <div className="mb-2 flex gap-2 flex-wrap">
+            <div className="mb-3 flex gap-2 flex-wrap">
               {book.genres?.map(g => (
-                <span key={g} className="px-3 py-1 rounded-full bg-muted text-xs font-semibold tracking-wider uppercase text-muted-foreground">
+                <span key={g} className="px-3 py-1 rounded-full bg-muted text-[11px] font-semibold tracking-[0.1em] uppercase text-muted-foreground">
                   {g}
                 </span>
               ))}
             </div>
-            
-            <h1 className="font-serif text-4xl sm:text-5xl font-bold text-foreground mb-4 leading-tight">
+
+            <h1 className="font-serif text-4xl sm:text-5xl font-bold text-foreground mb-4 leading-[1.08] text-balance">
               {book.title}
             </h1>
-            
+
             <p className="text-xl text-primary font-medium mb-10">
               By {book.authors.join(", ")}
             </p>
 
             {/* AI Summary Section */}
-            <div className="bg-gradient-to-br from-primary/5 to-transparent border border-primary/20 rounded-3xl p-6 sm:p-8 mb-10 relative overflow-hidden">
+            <div className="bg-gradient-to-br from-primary/5 via-primary/[0.02] to-transparent border border-primary/15 rounded-3xl p-6 sm:p-8 mb-10 relative overflow-hidden">
               <div className="flex items-center justify-between mb-6 relative z-10">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-xl bg-primary/10 text-primary">
+                  <div className="p-2.5 rounded-xl bg-primary/10 text-primary">
                     <BrainCircuit className="h-6 w-6" />
                   </div>
-                  <h3 className="font-serif text-2xl font-bold">AI Synthesis</h3>
+                  <div>
+                    <h3 className="font-serif text-xl font-bold">AI Synthesis</h3>
+                    <p className="text-[11px] text-muted-foreground tracking-wide">Powered by Groq</p>
+                  </div>
                 </div>
-                
+
                 {!(displaySummary) && (
-                  <Button 
-                    variant="outline" 
-                    onClick={handleAiSummary} 
+                  <Button
+                    variant="outline"
+                    onClick={handleAiSummary}
                     disabled={isGenerating}
                     className="rounded-full border-primary/30 hover:bg-primary/5 text-primary"
                   >
-                    {isGenerating ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : "Generate Kimi Analysis"}
+                    {isGenerating ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : "Generate Analysis"}
                   </Button>
                 )}
               </div>
 
-              <div className="relative z-10 text-foreground/80 leading-relaxed text-lg">
+              <div className="relative z-10 text-foreground/80 leading-relaxed">
                 <AnimatePresence mode="wait">
                   {displaySummary ? (
                     <motion.div
@@ -207,43 +231,51 @@ export default function BookDetail() {
                       className="space-y-4"
                     >
                       {displaySummary.split('\n\n').map((paragraph, i) => (
-                        <p key={i}>{paragraph}</p>
+                        <p key={i} className="text-[15px] leading-relaxed">{paragraph}</p>
                       ))}
                     </motion.div>
                   ) : (
-                    <motion.p 
+                    <motion.p
                       initial={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
-                      className="italic text-muted-foreground"
+                      className="italic text-muted-foreground text-sm"
                     >
-                      Click generate to let Kimi K2 analyze this work and provide a comprehensive breakdown of themes, plot, and target audience.
+                      Click generate to let Groq analyze this work and provide a comprehensive breakdown of themes, plot, and target audience.
                     </motion.p>
                   )}
                 </AnimatePresence>
               </div>
             </div>
 
-            {/* Original Publisher Description */}
+            {/* Publisher Description */}
             {book.description && (
-              <div className="prose prose-stone dark:prose-invert max-w-none">
-                <h3 className="font-serif text-2xl font-bold mb-4">Publisher's Note</h3>
-                <p className="text-muted-foreground leading-relaxed text-lg">
+              <div>
+                <h3 className="font-serif text-xl font-bold mb-4">Publisher's Note</h3>
+                <p className="text-muted-foreground leading-relaxed text-[15px]">
                   {book.description}
                 </p>
               </div>
             )}
-            
+
+            {/* Metadata */}
             <div className="mt-12 pt-8 border-t border-border grid grid-cols-2 sm:grid-cols-4 gap-6 text-sm">
               <div>
-                <p className="text-muted-foreground mb-1">ISBN-13</p>
-                <p className="font-mono font-medium">{book.isbn13 || 'Unknown'}</p>
+                <p className="text-muted-foreground text-xs uppercase tracking-wider mb-1.5">ISBN-13</p>
+                <p className="font-mono font-medium text-sm">{book.isbn13 || 'Unknown'}</p>
               </div>
               <div>
-                <p className="text-muted-foreground mb-1">Added to Catalog</p>
-                <p className="font-medium">{book.createdAt ? new Date(book.createdAt).toLocaleDateString() : 'N/A'}</p>
+                <p className="text-muted-foreground text-xs uppercase tracking-wider mb-1.5">Added</p>
+                <p className="font-medium text-sm">{book.createdAt ? new Date(book.createdAt).toLocaleDateString() : 'N/A'}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground text-xs uppercase tracking-wider mb-1.5">Genres</p>
+                <p className="font-medium text-sm">{book.genres?.join(', ') || 'N/A'}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground text-xs uppercase tracking-wider mb-1.5">Authors</p>
+                <p className="font-medium text-sm">{book.authors.length}</p>
               </div>
             </div>
-
           </motion.div>
         </div>
       </div>

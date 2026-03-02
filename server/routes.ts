@@ -4,10 +4,10 @@ import type { Server } from "http";
 import { storage } from "./storage";
 import { api } from "@shared/routes";
 import { z } from "zod";
-import { setupAuth, registerAuthRoutes, isAuthenticated } from "./auth";
-import OpenAI from "openai";
+import { setupAuth, registerAuthRoutes, isAuthenticated, isAdmin } from "./auth";
+import Groq from "groq-sdk";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 export async function registerRoutes(
   httpServer: Server,
@@ -16,6 +16,8 @@ export async function registerRoutes(
   // Auth
   await setupAuth(app);
   registerAuthRoutes(app);
+
+  // ==================== BOOK ROUTES ====================
 
   app.get(api.books.list.path, async (req, res) => {
     const search = req.query.search as string;
@@ -29,7 +31,7 @@ export async function registerRoutes(
     res.json(book);
   });
 
-  app.post(api.books.create.path, async (req, res) => {
+  app.post(api.books.create.path, isAuthenticated, async (req, res) => {
     try {
       const input = api.books.create.input.parse(req.body);
       const book = await storage.createBook(input);
@@ -51,8 +53,8 @@ export async function registerRoutes(
         return res.json({ summary: book.aiSummary });
       }
 
-      const response = await openai.chat.completions.create({
-        model: "gpt-5.1",
+      const response = await groq.chat.completions.create({
+        model: "llama-3.3-70b-versatile",
         messages: [
           { role: "system", content: "You are an expert librarian. Summarize the following book in 3 short paragraphs: 1) What it's about, 2) Key themes, 3) Who should read it." },
           { role: "user", content: `Title: ${book.title}\nAuthors: ${book.authors.join(", ")}\nDescription: ${book.description || ""}` }
@@ -69,6 +71,8 @@ export async function registerRoutes(
     }
   });
 
+  // ==================== LOAN ROUTES ====================
+
   app.get(api.loans.list.path, isAuthenticated, async (req: any, res) => {
     const userId = req.user.claims.sub;
     const loansList = await storage.getLoans(userId);
@@ -79,7 +83,7 @@ export async function registerRoutes(
     try {
       const userId = req.user.claims.sub;
       const input = api.loans.create.input.parse(req.body);
-      
+
       const book = await storage.getBook(input.bookId);
       if (!book || book.availableCopies <= 0) {
         return res.status(400).json({ message: "Book not available" });
@@ -114,6 +118,8 @@ export async function registerRoutes(
     res.json(loan);
   });
 
+  // ==================== HOLD ROUTES ====================
+
   app.get(api.holds.list.path, isAuthenticated, async (req: any, res) => {
     const userId = req.user.claims.sub;
     const holdsList = await storage.getHolds(userId);
@@ -135,7 +141,110 @@ export async function registerRoutes(
     }
   });
 
-  // Seed database with mock books
+  // ==================== ADMIN ROUTES ====================
+
+  // Admin stats dashboard
+  app.get("/api/admin/stats", isAdmin, async (_req, res) => {
+    try {
+      const stats = await storage.getStats();
+      res.json(stats);
+    } catch (err) {
+      res.status(500).json({ message: "Failed to fetch stats" });
+    }
+  });
+
+  // Admin: all books (same as public but for consistency)
+  app.get("/api/admin/books", isAdmin, async (req, res) => {
+    const search = req.query.search as string;
+    const booksList = await storage.getBooks(search);
+    res.json(booksList);
+  });
+
+  // Admin: update a book
+  app.put("/api/admin/books/:id", isAdmin, async (req, res) => {
+    try {
+      const id = req.params.id as string;
+      const updates = req.body;
+      const book = await storage.updateBook(id, updates);
+      res.json(book);
+    } catch (err) {
+      res.status(500).json({ message: "Failed to update book" });
+    }
+  });
+
+  // Admin: delete a book
+  app.delete("/api/admin/books/:id", isAdmin, async (req, res) => {
+    try {
+      const id = req.params.id as string;
+      await storage.deleteBook(id);
+      res.json({ message: "Book deleted" });
+    } catch (err) {
+      res.status(500).json({ message: "Failed to delete book" });
+    }
+  });
+
+  // Admin: all loans
+  app.get("/api/admin/loans", isAdmin, async (_req, res) => {
+    try {
+      const allLoans = await storage.getAllLoans();
+      res.json(allLoans);
+    } catch (err) {
+      res.status(500).json({ message: "Failed to fetch loans" });
+    }
+  });
+
+  // Admin: return a loan (staff-initiated)
+  app.post("/api/admin/loans/:id/return", isAdmin, async (req, res) => {
+    try {
+      const id = req.params.id as string;
+      const loan = await storage.returnLoan(id);
+      const book = await storage.getBook(loan.bookId);
+      if (book) {
+        await storage.updateBook(book.id, { availableCopies: book.availableCopies + 1 });
+      }
+      res.json(loan);
+    } catch (err) {
+      res.status(500).json({ message: "Failed to return loan" });
+    }
+  });
+
+  // Admin: all holds
+  app.get("/api/admin/holds", isAdmin, async (_req, res) => {
+    try {
+      const allHolds = await storage.getAllHolds();
+      res.json(allHolds);
+    } catch (err) {
+      res.status(500).json({ message: "Failed to fetch holds" });
+    }
+  });
+
+  // Admin: all users
+  app.get("/api/admin/users", isAdmin, async (_req, res) => {
+    try {
+      const allUsers = await storage.getAllUsers();
+      res.json(allUsers);
+    } catch (err) {
+      res.status(500).json({ message: "Failed to fetch users" });
+    }
+  });
+
+  // Admin: update user role
+  app.patch("/api/admin/users/:id/role", isAdmin, async (req, res) => {
+    try {
+      const id = req.params.id as string;
+      const { role } = req.body;
+      if (!["patron", "librarian", "admin"].includes(role)) {
+        return res.status(400).json({ message: "Invalid role" });
+      }
+      const user = await storage.updateUserRole(id, role);
+      res.json(user);
+    } catch (err) {
+      res.status(500).json({ message: "Failed to update role" });
+    }
+  });
+
+  // ==================== DATABASE SEED ====================
+
   async function seedDatabase() {
     const existingBooks = await storage.getBooks();
     if (existingBooks.length === 0) {

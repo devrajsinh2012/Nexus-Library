@@ -1,50 +1,47 @@
-import { pgTable, text, integer, timestamp, varchar, uuid } from "drizzle-orm/pg-core";
-import { sql } from "drizzle-orm";
-import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
-import { users } from "./models/auth"; // Import auth users
 
-export const books = pgTable("books", {
-  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
-  isbn13: text("isbn_13").unique(),
-  title: text("title").notNull(),
-  authors: text("authors").array().notNull(),
-  description: text("description"),
-  aiSummary: text("ai_summary"),
-  genres: text("genres").array(),
-  coverUrl: text("cover_url"),
-  totalCopies: integer("total_copies").notNull().default(1),
-  availableCopies: integer("available_copies").notNull().default(1),
-  createdAt: timestamp("created_at").defaultNow(),
+// ── Book ────────────────────────────────────────────────────────────────────
+export const insertBookSchema = z.object({
+  isbn13: z.string().optional().nullable(),
+  title: z.string().min(1, "Title is required"),
+  authors: z.array(z.string()).min(1, "At least one author is required"),
+  description: z.string().optional().nullable(),
+  aiSummary: z.string().optional().nullable(),
+  genres: z.array(z.string()).optional().default([]),
+  coverUrl: z.string().optional().nullable(),
+  totalCopies: z.number().int().min(1).default(1),
+  availableCopies: z.number().int().min(0).default(1),
 });
 
-export const loans = pgTable("loans", {
-  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
-  bookId: uuid("book_id").notNull().references(() => books.id),
-  userId: varchar("user_id").notNull().references(() => users.id),
-  checkedOutAt: timestamp("checked_out_at").defaultNow(),
-  dueDate: timestamp("due_date").notNull(),
-  returnedAt: timestamp("returned_at"),
-});
-
-export const holds = pgTable("holds", {
-  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
-  bookId: uuid("book_id").notNull().references(() => books.id),
-  userId: varchar("user_id").notNull().references(() => users.id),
-  requestedAt: timestamp("requested_at").defaultNow(),
-  status: text("status").notNull().default("waiting"), // waiting, ready, fulfilled, cancelled
-});
-
-export const insertBookSchema = createInsertSchema(books).omit({ id: true, createdAt: true });
-export const insertLoanSchema = createInsertSchema(loans).omit({ id: true, checkedOutAt: true, returnedAt: true });
-export const insertHoldSchema = createInsertSchema(holds).omit({ id: true, requestedAt: true });
-
-export type Book = typeof books.$inferSelect;
 export type InsertBook = z.infer<typeof insertBookSchema>;
-export type Loan = typeof loans.$inferSelect;
-export type InsertLoan = z.infer<typeof insertLoanSchema>;
-export type Hold = typeof holds.$inferSelect;
-export type InsertHold = z.infer<typeof insertHoldSchema>;
+export type Book = InsertBook & { id: string; createdAt: Date | null };
 
-// Export auth models so they're available for Drizzle migrations
+// ── Loan ────────────────────────────────────────────────────────────────────
+export const insertLoanSchema = z.object({
+  bookId: z.string().min(1),
+  userId: z.string().min(1),
+  dueDate: z.coerce.date(),
+});
+
+export type InsertLoan = z.infer<typeof insertLoanSchema>;
+export type Loan = InsertLoan & {
+  id: string;
+  checkedOutAt: Date | null;
+  returnedAt: Date | null;
+};
+
+// ── Hold ────────────────────────────────────────────────────────────────────
+export const insertHoldSchema = z.object({
+  bookId: z.string().min(1),
+  userId: z.string().min(1),
+  status: z.string().default("waiting"),
+});
+
+export type InsertHold = z.infer<typeof insertHoldSchema>;
+export type Hold = InsertHold & {
+  id: string;
+  requestedAt: Date | null;
+};
+
+// Re-export auth types so shared/schema is still a one-stop-shop
 export * from "./models/auth";

@@ -8,8 +8,7 @@
     "dev": "NODE_ENV=development tsx server/index.ts",
     "build": "tsx script/build.ts",
     "start": "NODE_ENV=production node dist/index.cjs",
-    "check": "tsc",
-    "db:push": "drizzle-kit push"
+    "check": "tsc"
   },
   "dependencies": {
     "@google-cloud/storage": "^7.19.0",
@@ -51,27 +50,26 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
-    "connect-pg-simple": "^10.0.0",
+    "connect-mongo": "^5.1.0",
     "date-fns": "^3.6.0",
-    "drizzle-orm": "^0.39.3",
-    "drizzle-zod": "^0.7.1",
+    "dotenv": "^16.4.7",
     "embla-carousel-react": "^8.6.0",
     "express": "^5.0.1",
     "express-session": "^1.19.0",
     "framer-motion": "^11.18.2",
     "google-auth-library": "^10.5.0",
+    "groq-sdk": "^0.37.0",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.453.0",
     "memoizee": "^0.4.17",
     "memorystore": "^1.6.7",
+    "mongodb": "^6.11.0",
     "next-themes": "^0.4.6",
-    "openai": "^6.22.0",
     "openid-client": "^6.8.2",
     "p-limit": "^7.3.0",
     "p-retry": "^7.1.1",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
-    "pg": "^8.16.3",
     "react": "^18.3.1",
     "react-day-picker": "^8.10.1",
     "react-dom": "^18.3.1",
@@ -91,7 +89,6 @@
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.15",
     "@tailwindcss/vite": "^4.1.18",
-    "@types/connect-pg-simple": "^7.0.3",
     "@types/express": "^5.0.0",
     "@types/express-session": "^1.18.2",
     "@types/node": "20.19.27",
@@ -102,18 +99,12 @@
     "@types/ws": "^8.5.13",
     "@vitejs/plugin-react": "^4.7.0",
     "autoprefixer": "^10.4.20",
-    "drizzle-kit": "^0.31.8",
     "esbuild": "^0.25.0",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.17",
     "tsx": "^4.20.5",
     "typescript": "5.6.3",
     "vite": "^7.3.0"
-  },
-  "overrides": {
-    "drizzle-kit": {
-      "@esbuild-kit/esm-loader": "npm:tsx@^4.20.4"
-    }
   },
   "optionalDependencies": {
     "bufferutil": "^4.0.8"

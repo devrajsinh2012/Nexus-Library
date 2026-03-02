@@ -1,13 +1,14 @@
 import { Link } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
-import { Library, Menu, Search, User } from "lucide-react";
+import { Library, Menu, User, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export function Navbar() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const isStaff = user?.role === "librarian" || user?.role === "admin";
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur-xl transition-all duration-300">
@@ -33,9 +34,15 @@ export function Navbar() {
                 My Dashboard
               </Link>
             )}
-            
+            {isStaff && (
+              <Link href="/admin" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-1.5">
+                <ShieldCheck className="h-3.5 w-3.5" />
+                Admin
+              </Link>
+            )}
+
             <div className="h-6 w-px bg-border mx-2"></div>
-            
+
             {!isLoading && (
               isAuthenticated ? (
                 <div className="flex items-center gap-4">
@@ -44,6 +51,11 @@ export function Navbar() {
                       <User className="h-4 w-4" />
                     </div>
                     <span className="hidden lg:inline-block">{user?.firstName || 'Patron'}</span>
+                    {isStaff && (
+                      <span className="hidden lg:inline-block text-[10px] font-bold uppercase tracking-wider text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">
+                        {user?.role}
+                      </span>
+                    )}
                   </div>
                   <Button variant="outline" size="sm" className="rounded-full border-border/60 hover:bg-muted" onClick={() => window.location.href = '/api/logout'}>
                     Sign Out
@@ -74,7 +86,7 @@ export function Navbar() {
       {/* Mobile Menu */}
       <AnimatePresence>
         {isMobileMenuOpen && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
@@ -87,6 +99,12 @@ export function Navbar() {
               {isAuthenticated && (
                 <Link href="/dashboard" className="block rounded-lg px-3 py-3 text-base font-medium text-foreground hover:bg-muted">
                   My Dashboard
+                </Link>
+              )}
+              {isStaff && (
+                <Link href="/admin" className="block rounded-lg px-3 py-3 text-base font-medium text-foreground hover:bg-muted">
+                  <ShieldCheck className="h-4 w-4 inline mr-2" />
+                  Admin Panel
                 </Link>
               )}
               <div className="mt-4 pt-4 border-t border-border">

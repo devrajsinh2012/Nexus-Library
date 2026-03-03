@@ -1,13 +1,24 @@
 // Author: devrajsinh2012 <djgohil2012@gmail.com>
 import type { Express } from "express";
 import type { Server } from "http";
-import { storage } from "./storage";
+import { storage, LoanNotFoundError } from "./storage";
 import { api } from "@shared/routes";
 import { z } from "zod";
 import { setupAuth, registerAuthRoutes, isAuthenticated, isAdmin } from "./auth";
 import Groq from "groq-sdk";
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+// Lazily initialised so a missing GROQ_API_KEY only breaks the AI-summary
+// route rather than crashing the entire serverless function at module load.
+let groqClient: Groq | null = null;
+function getGroqClient(): Groq {
+  if (!process.env.GROQ_API_KEY) {
+    throw new Error("GROQ_API_KEY environment variable is not configured");
+  }
+  if (!groqClient) {
+    groqClient = new Groq({ apiKey: process.env.GROQ_API_KEY });
+  }
+  return groqClient;
+}
 
 export async function registerRoutes(
   httpServer: Server,
@@ -51,6 +62,14 @@ export async function registerRoutes(
 
       if (book.aiSummary) {
         return res.json({ summary: book.aiSummary });
+      }
+
+      let groq: Groq;
+      try {
+        groq = getGroqClient();
+      } catch (configErr) {
+        console.error("AI Summary error: Groq client configuration failure:", configErr);
+        return res.status(503).json({ message: "AI summary service is not available" });
       }
 
       const response = await groq.chat.completions.create({
@@ -110,12 +129,20 @@ export async function registerRoutes(
   });
 
   app.post(api.loans.return.path, isAuthenticated, async (req: any, res) => {
-    const loan = await storage.returnLoan(req.params.id);
-    const book = await storage.getBook(loan.bookId);
-    if (book) {
-      await storage.updateBook(book.id, { availableCopies: book.availableCopies + 1 });
+    try {
+      const loan = await storage.returnLoan(req.params.id);
+      const book = await storage.getBook(loan.bookId);
+      if (book) {
+        await storage.updateBook(book.id, { availableCopies: book.availableCopies + 1 });
+      }
+      res.json(loan);
+    } catch (err: any) {
+      console.error("Return loan error:", err);
+      if (err instanceof LoanNotFoundError) {
+        return res.status(404).json({ message: "Loan not found" });
+      }
+      res.status(500).json({ message: "Failed to return loan" });
     }
-    res.json(loan);
   });
 
   // ==================== HOLD ROUTES ====================

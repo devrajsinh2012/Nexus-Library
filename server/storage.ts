@@ -4,6 +4,14 @@ import { randomUUID } from "crypto";
 import type { InsertBook, InsertLoan, InsertHold, Book, Loan, Hold } from "@shared/schema";
 import type { User } from "@shared/models/auth";
 
+// ── Custom errors ───────────────────────────────────────────────────────────
+export class LoanNotFoundError extends Error {
+  constructor(id: string) {
+    super(`Loan ${id} not found`);
+    this.name = "LoanNotFoundError";
+  }
+}
+
 // ── Helpers ────────────────────────────────────────────────────────────────
 // MongoDB stores _id; our API exposes `id`. These helpers translate between them.
 function fromDoc<T extends Record<string, any>>(doc: T): T & { id: string } {
@@ -119,7 +127,8 @@ export class DatabaseStorage implements IStorage {
   async returnLoan(id: string): Promise<Loan> {
     await LOANS().updateOne({ _id: id as any }, { $set: { returnedAt: new Date() } });
     const doc = await LOANS().findOne({ _id: id as any });
-    return fromDoc(doc!) as unknown as Loan;
+    if (!doc) throw new LoanNotFoundError(id);
+    return fromDoc(doc) as unknown as Loan;
   }
 
   // ── Holds ─────────────────────────────────────────────────────────────────

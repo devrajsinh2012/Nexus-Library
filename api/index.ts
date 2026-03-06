@@ -1,1 +1,1 @@
-export { default } from "../server/index";
+import app from '../dist/index.cjs'

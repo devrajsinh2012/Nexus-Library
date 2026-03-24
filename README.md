@@ -198,7 +198,7 @@ Main tables:
 - holds
 - loan_requests
 
-The server initializes schema on startup if needed and also through npm run db:init.
+The server initializes schema on startup if needed and also through npm run db:init
 
 ## License
 

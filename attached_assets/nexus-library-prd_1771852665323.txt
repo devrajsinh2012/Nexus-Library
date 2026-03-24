@@ -1,0 +1,1210 @@
+﻿NEXUS LIBRARY
+MANAGEMENT SYSTEM
+Product Requirements Document (PRD)
+
+
+Version 1.0  |  February 2026
+Classification: Internal / AI Agent Build Brief
+
+
+Stack Layer
+	Technology
+	Frontend
+	Next.js 14 + shadcn/ui + Tailwind
+	Backend / DB
+	Supabase (PostgreSQL + Auth + Storage)
+	AI Engine
+	NVIDIA NIM — Kimi K2 (Free Tier)
+	Deployment
+	Vercel (Free Tier)
+	Image CDN
+	Unsplash API + Supabase Storage
+	Search
+	Supabase Full-Text + OpenLibrary API
+	Analytics
+	Vercel Analytics (Free)
+	________________
+
+
+Table of Contents
+
+
+
+
+________________
+
+
+1. Executive Summary
+Nexus Library Management System (Nexus LMS) is a next-generation, AI-first library platform designed to replace legacy systems and redefine what a modern library can offer. It combines a stunning, award-worthy UI with deep AI capabilities powered by NVIDIA NIM Kimi K2, rich real-time data pipelines, and a completely free, production-grade cloud stack built on Supabase and deployed on Vercel.
+
+
+This document serves as the complete build specification for the AI coding agent. Every section contains precise technical requirements, API integrations, data schemas, UI/UX patterns, and acceptance criteria. Nothing is left to interpretation. The agent should treat this PRD as the single source of truth.
+
+
+Mission: Deliver a library management system so advanced in AI, design, and features that it becomes the global open-source reference implementation for modern library software — at zero infrastructure cost.
+	
+
+1.1 Success Metrics
+Metric
+	Target (Launch)
+	Target (6 months)
+	Page Load (LCP)
+	< 1.5 s
+	< 1.2 s
+	Lighthouse Score
+	≥ 95 all categories
+	≥ 98 all categories
+	AI Response Time
+	< 3 s P95
+	< 2 s P95
+	Concurrent Users (free tier)
+	500+
+	2,000+
+	Book Catalog Size
+	1 M+ via OpenLibrary sync
+	5 M+
+	Monthly Active Users
+	200+
+	5,000+
+	Infrastructure Cost
+	$0 (free tiers)
+	$0 (free tiers)
+	
+
+________________
+
+
+2. Problem Statement & Opportunity
+2.1 Current State of Library Software
+Traditional Library Management Systems (LMS) such as Koha, Evergreen, and proprietary systems like Symphony suffer from a common set of critical deficiencies that Nexus is designed to eliminate:
+
+
+* Outdated, early-2000s UI paradigms that confuse patrons and require staff training
+* No AI assistance for discovery, recommendations, or cataloging
+* High licensing fees ($10,000–$100,000+/year) or complex self-hosting costs
+* Poor mobile experience — not responsive or PWA-capable
+* Siloed data with no open APIs or webhook systems
+* No real-time features — holds, availability, and notifications are batch-processed
+* Zero integration with modern content ecosystems (eBooks, audiobooks, streaming)
+* Inaccessible to small and community libraries due to cost and complexity
+
+
+2.2 The Nexus Opportunity
+By combining Supabase (free tier: 500 MB DB, 1 GB storage, 2 GB bandwidth/month, unlimited API calls), NVIDIA NIM free credits, Vercel free hosting, and open library APIs, Nexus can deliver enterprise-grade functionality at zero cost — making it accessible to any library worldwide.
+
+
+Nexus targets three user segments simultaneously: (1) Public & community libraries needing a free, modern replacement for legacy software. (2) University libraries wanting AI-powered research discovery. (3) Corporate / private libraries needing analytics and integration capabilities.
+	
+
+________________
+
+
+3. User Personas & Journeys
+3.1 Primary Personas
+
+
+Persona
+	Description
+	Alex — The Patron
+	Age 28, frequent library visitor. Wants fast book discovery, AI-powered recommendations based on reading history, easy digital checkouts, and push notifications when holds are ready. Accesses via mobile 80% of the time.
+	Maria — The Librarian
+	Age 42, senior librarian. Needs efficient cataloging with AI auto-fill, patron management, overdue tracking, report generation, and an intuitive dashboard that surfaces urgent tasks without hunting.
+	Dr. Chen — The Researcher
+	Age 55, university professor. Needs advanced full-text search across catalog and metadata, citation export (BibTeX, RIS, APA), reading list management, and AI-powered literature summaries.
+	Jamie — The Admin
+	Age 35, library director. Needs system-wide analytics, budget tracking, acquisition suggestions powered by AI demand forecasting, staff role management, and compliance reporting.
+	Sam — The Student
+	Age 19, high school student. Needs homework help AI, assignment-linked book recommendations, reading progress tracking with gamification, and parent/teacher visibility.
+	
+
+3.2 Key User Journeys
+Journey 1: Patron Book Discovery & Checkout
+1. Patron lands on homepage → sees personalized "For You" shelf powered by Kimi AI
+2. Uses natural-language search: "mystery novels set in 1920s Paris with a female detective"
+3. AI returns semantically matched results with cover images from Unsplash/OpenLibrary
+4. Patron clicks book → sees rich detail page: AI summary, similar books, availability heatmap
+5. One-click hold placement → real-time notification via Supabase Realtime when ready
+6. QR-code checkout at kiosk or librarian desk → loan recorded in < 1 second
+
+
+Journey 2: Librarian AI-Assisted Cataloging
+7. Librarian scans ISBN or enters title → AI auto-fetches metadata from OpenLibrary, Google Books APIs
+8. Kimi AI generates catalog description, subject tags, reading level, and audience classification
+9. Librarian reviews, edits, and approves in a single-screen workflow
+10. Book is live in catalog, indexed for full-text search, and cover image fetched from Unsplash
+11. AI suggests Dewey Decimal placement based on content analysis
+
+
+________________
+
+
+4. Technology Stack & Architecture
+4.1 Complete Free-Tier Stack
+
+
+Layer
+	Technology
+	Free Tier Limits
+	Purpose
+	Frontend
+	Next.js 14 (App Router)
+	Unlimited on Vercel
+	SSR, ISR, RSC
+	UI Library
+	shadcn/ui + Radix UI
+	Open source
+	Accessible components
+	Styling
+	Tailwind CSS v3
+	Open source
+	Utility-first design
+	Animation
+	Framer Motion + GSAP
+	Open source
+	Premium animations
+	Database
+	Supabase PostgreSQL
+	500 MB DB, 5 GB transfer
+	Primary data store
+	Auth
+	Supabase Auth
+	Unlimited MAU free
+	JWT + RLS security
+	Realtime
+	Supabase Realtime
+	200 concurrent free
+	Live availability, chat
+	File Storage
+	Supabase Storage
+	1 GB free
+	Covers, documents
+	AI Engine
+	NVIDIA NIM Kimi K2
+	Free API credits
+	All AI features
+	Deployment
+	Vercel Free
+	100 GB bandwidth
+	Edge + CDN
+	Images
+	Unsplash API
+	50 req/hr free
+	Book cover imagery
+	Book Data
+	Open Library API
+	Unlimited
+	Metadata + catalog
+	Book Data 2
+	Google Books API
+	1,000 req/day free
+	Supplemental metadata
+	Email
+	Resend API
+	100 emails/day free
+	Notifications, receipts
+	Analytics
+	Vercel Analytics
+	Free on Hobby plan
+	Traffic + Web Vitals
+	Search (ext.)
+	MeiliSearch Cloud
+	100K docs free
+	Advanced full-text
+	Maps
+	Leaflet.js + OSM
+	Completely free
+	Branch locations
+	QR/Barcode
+	zxing-js
+	Open source
+	Book scanning
+	Charts
+	Recharts + D3.js
+	Open source
+	Admin dashboards
+	
+
+4.2 System Architecture
+High-Level Architecture Description
+The system follows a modern Jamstack + edge architecture with three primary tiers:
+
+
+* Presentation Tier: Next.js 14 App Router deployed on Vercel Edge Network. Server Components handle initial render, Client Components manage interactivity. ISR caches catalog pages with 60-second revalidation.
+* API Tier: Next.js API Routes + Supabase Edge Functions handle business logic. Supabase Row Level Security (RLS) enforces data access at the database level, eliminating the need for a separate middleware auth layer.
+* Data Tier: Supabase PostgreSQL with pgvector extension enabled for semantic search embeddings. Supabase Realtime provides WebSocket connections for live updates (availability, notifications, chat).
+
+
+AI Pipeline Architecture
+All AI features route through a single unified AI service layer (lib/ai/nexus-ai.ts) which abstracts the NVIDIA NIM Kimi K2 API. The pipeline:
+12. Request arrives at Next.js API Route /api/ai/[feature]
+13. Rate limiter checks Supabase table (ai_request_log) — max 100 requests/patron/day
+14. Context builder assembles relevant data (user history, book metadata, catalog state)
+15. Prompt template injects context into structured Kimi K2 prompt
+16. NVIDIA NIM API called via streaming fetch with 30-second timeout
+17. Response streamed to client via Server-Sent Events for real-time typewriter effect
+18. Response cached in Supabase (ai_response_cache) with 24-hour TTL to minimize API calls
+
+
+________________
+
+
+5. Database Schema (Supabase PostgreSQL)
+5.1 Core Tables
+
+
+All tables use UUID primary keys, created_at/updated_at timestamps (auto-managed by triggers), and Row Level Security (RLS) policies. pgvector extension must be enabled for AI embedding columns.
+	
+
+5.1.1 Books Table
+Column
+	Type
+	Constraints
+	Description
+	id
+	uuid
+	PK, default gen
+	Primary identifier
+	isbn_13
+	text
+	UNIQUE, indexed
+	13-digit ISBN
+	isbn_10
+	text
+	nullable, indexed
+	10-digit ISBN
+	title
+	text
+	NOT NULL, FTS indexed
+	Book title
+	subtitle
+	text
+	nullable
+	Book subtitle
+	authors
+	text[]
+	NOT NULL
+	Array of author names
+	publisher
+	text
+	nullable
+	Publisher name
+	publish_date
+	date
+	nullable
+	Publication date
+	description
+	text
+	nullable
+	Publisher description
+	ai_summary
+	text
+	nullable
+	Kimi-generated summary
+	ai_tags
+	text[]
+	nullable
+	AI-generated semantic tags
+	dewey_decimal
+	text
+	nullable
+	DDC classification
+	genres
+	text[]
+	nullable
+	Genre array
+	language
+	text
+	default en
+	ISO 639-1 language code
+	pages
+	int
+	nullable
+	Page count
+	cover_url
+	text
+	nullable
+	Supabase Storage URL
+	unsplash_cover_id
+	text
+	nullable
+	Fallback Unsplash photo ID
+	open_library_id
+	text
+	nullable, indexed
+	OL work ID
+	embedding
+	vector(1536)
+	nullable
+	pgvector embedding for semantic search
+	reading_level
+	text
+	nullable
+	AR level or Lexile score
+	audience
+	text
+	nullable
+	children/teen/adult/all
+	average_rating
+	numeric(3,2)
+	default 0
+	Community rating 0–5
+	total_copies
+	int
+	NOT NULL, default 1
+	Total physical copies
+	available_copies
+	int
+	NOT NULL, default 1
+	Currently available copies
+	location_code
+	text
+	nullable
+	Shelf location code
+	is_ebook
+	boolean
+	default false
+	Digital edition flag
+	ebook_url
+	text
+	nullable
+	Link to ebook (e.g. Project Gutenberg)
+	is_active
+	boolean
+	default true
+	Soft delete flag
+	created_at
+	timestamptz
+	default now()
+	Record creation time
+	updated_at
+	timestamptz
+	auto-trigger
+	Last modification time
+	
+
+5.1.2 Users / Patrons Table (extends Supabase auth.users)
+Column
+	Type
+	Constraints
+	Description
+	id
+	uuid
+	PK = auth.users.id
+	Links to Supabase auth
+	patron_id
+	text
+	UNIQUE, auto-gen
+	Human-readable library card #
+	full_name
+	text
+	NOT NULL
+	Display name
+	avatar_url
+	text
+	nullable
+	Profile image URL
+	role
+	text
+	default patron
+	patron/librarian/admin/superadmin
+	phone
+	text
+	nullable
+	Contact number
+	date_of_birth
+	date
+	nullable
+	For age-based restrictions
+	address
+	jsonb
+	nullable
+	Structured address object
+	preferences
+	jsonb
+	default {}
+	Genre prefs, notification settings
+	ai_reading_profile
+	jsonb
+	default {}
+	AI-built taste profile
+	total_books_read
+	int
+	default 0
+	Lifetime checkout count
+	reading_streak_days
+	int
+	default 0
+	Consecutive reading days
+	badges
+	text[]
+	default {}
+	Earned gamification badges
+	membership_type
+	text
+	default standard
+	standard/premium/student
+	membership_expires
+	date
+	nullable
+	Membership expiry date
+	fine_balance
+	numeric(10,2)
+	default 0.00
+	Outstanding fine amount
+	is_suspended
+	boolean
+	default false
+	Account suspension flag
+	branch_id
+	uuid
+	FK branches.id
+	Home branch
+	
+
+5.1.3 Additional Core Tables (Summary)
+Table Name
+	Purpose & Key Columns
+	loans
+	Tracks all checkouts. Columns: id, book_id, patron_id, checked_out_at, due_date, returned_at, fine_amount, renewal_count, librarian_id.
+	holds
+	Queue-based reservation system. Columns: id, book_id, patron_id, requested_at, position_in_queue, status (waiting/ready/cancelled/fulfilled), notified_at.
+	branches
+	Library branch locations. Columns: id, name, address, lat/lng (for map), phone, hours_jsonb, is_main_branch.
+	reviews
+	Patron book reviews. Columns: id, book_id, patron_id, rating (1-5), body_text, ai_sentiment, is_approved, helpful_votes.
+	reading_lists
+	Custom patron lists. Columns: id, patron_id, name, description, is_public, cover_book_id, book_ids (uuid[]).
+	events
+	Library events. Columns: id, branch_id, title, description, ai_summary, type, starts_at, ends_at, capacity, registered_count, cover_url.
+	fines
+	Fine ledger. Columns: id, loan_id, patron_id, amount, reason, issued_at, paid_at, waived_by.
+	notifications
+	In-app + email alerts. Columns: id, patron_id, type, title, body, is_read, action_url, sent_at.
+	ai_chats
+	Conversation history for AI librarian. Columns: id, patron_id, session_id, messages (jsonb array), context_book_id, created_at.
+	acquisitions
+	Purchase request pipeline. Columns: id, requested_by, title, isbn, reason, ai_priority_score, status, librarian_notes, approved_at.
+	staff_activity_log
+	Audit trail. Columns: id, staff_id, action_type, entity_type, entity_id, diff_jsonb, ip_address, timestamp.
+	badges_definitions
+	Gamification. Columns: id, name, icon_url, description, criteria_jsonb, points, rarity (common/rare/epic/legendary).
+	digital_resources
+	eBooks/audiobooks. Columns: id, book_id, format (epub/mp3/pdf), provider_url, drm_type, access_type (free/license), license_count.
+	search_queries
+	Analytics. Columns: id, patron_id (nullable), query_text, result_count, clicked_book_id, session_id, timestamp.
+	
+
+________________
+
+
+6. AI Features (NVIDIA NIM Kimi K2 Integration)
+All AI features use the NVIDIA NIM API endpoint: https://integrate.api.nvidia.com/v1/chat/completions with model: "moonshotai/kimi-k2-instruct". API key stored in Supabase Vault as NIM_API_KEY. Streaming is enabled for all user-facing features. Implement exponential backoff retry (3 attempts) for all API calls.
+	
+
+6.1 AI Feature Inventory
+AI Feature
+	Description & Implementation Notes
+	NexusBot — AI Librarian Chat
+	Full conversational AI assistant embedded in sidebar and mobile drawer. Maintains session context in ai_chats table. System prompt includes library catalog summary, patron reading history, and current policies. Supports: book queries, policy questions, reading recommendations, research guidance, homework help. Uses streaming SSE for real-time response rendering with typewriter animation.
+	Semantic Search
+	Natural-language book search beyond keyword matching. User query is embedded using a lightweight sentence-transformer (via Hugging Face Inference API free tier) then compared against book embeddings stored in pgvector. Returns top-N results ranked by cosine similarity + keyword relevance hybrid score.
+	AI Book Recommendations
+	Personalized "For You" shelf. Kimi K2 analyzes patron's checkout history, ratings, browsing patterns, and explicit preferences to generate a ranked recommendation list. Recomputed daily via Supabase Cron job and cached in patron's ai_reading_profile column.
+	Auto-Cataloging AI
+	When a librarian scans an ISBN, Kimi K2 automatically: writes a professional catalog description, generates subject headings, assigns reading level/audience, suggests Dewey Decimal class, extracts key themes and tags. Reduces cataloging time from 15 minutes to under 60 seconds.
+	AI Book Summarizer
+	One-click AI-generated book summary on any book detail page. Kimi K2 generates a 3-paragraph structured summary: (1) What the book is about, (2) Why it matters / key themes, (3) Who should read it. Summary cached in ai_summary column for 90 days.
+	AI Reading Streak Coach
+	Personalized motivational messages and reading goals. Kimi K2 analyzes reading patterns and generates daily personalized encouragement, weekly reading reports, and adaptive goal suggestions. Delivered as push notification + in-app card.
+	Smart Search Suggestions
+	As patron types in search bar, AI generates intelligent autocomplete suggestions that go beyond simple prefix matching. Suggestions include: author variations, related subjects, similar title patterns, genre-specific query refinements.
+	AI Acquisition Advisor
+	Analyzes hold queues, patron search queries with zero results, community request trends, and genre gaps in catalog. Generates weekly acquisition recommendation report for librarians with priority scores and estimated demand.
+	Review Sentiment Analysis
+	When a patron submits a review, Kimi K2 analyzes sentiment, extracts key themes mentioned, flags potentially inappropriate content, and generates a one-line "patron verdict" summary displayed under the review.
+	AI-Powered Fine Waiver Assistant
+	Analyzes patron history (length of membership, total books read, previous fines, reason for late return) and recommends whether a fine waiver is appropriate, with reasoning. Final decision remains with librarian.
+	AI Reading Level Detector
+	For books lacking Lexile/AR data, Kimi K2 analyzes title, description, author, genre, and publication year to estimate reading level and appropriate age range.
+	NLP Event Description Generator
+	Librarians enter basic event details; Kimi K2 generates a full, engaging event description formatted for the web, email newsletter, and social media (three format variants).
+	AI Demand Forecasting
+	Predicts which books will have high demand in the next 30 days based on: seasonality, school curriculum schedules, trending topics, current hold-to-copy ratios, and patron search trends.
+	Research Paper Assistant
+	For university/researcher patrons. Given a research topic, Kimi K2 generates: a structured literature review outline, key search terms to try in the catalog, related subject headings, and citation formatting guidance.
+	
+
+6.2 NVIDIA NIM API Integration Code Specification
+The AI agent must implement the following module at lib/ai/nexus-ai.ts:
+
+
+File: lib/ai/nexus-ai.ts — Exports: streamAIResponse(), generateAISummary(), buildCatalogContext(), buildPatronContext(), rateLimitCheck(). All functions are async and throw typed NexusAIError on failure. Never expose API key to client-side code.
+	
+
+* Base URL: https://integrate.api.nvidia.com/v1
+* Model: moonshotai/kimi-k2-instruct
+* Default max_tokens: 2048 for summaries, 4096 for chat, 512 for tags
+* Temperature: 0.3 for factual tasks (cataloging, summaries), 0.7 for conversational chat, 0.9 for creative (event descriptions)
+* Always include a structured system prompt that defines the AI as "Nexus AI, the intelligent librarian assistant"
+* Implement streaming via ReadableStream and Server-Sent Events in Next.js Route Handlers
+* Store all prompts/responses in ai_chats table for debugging and improvement
+* Implement daily token usage tracking in Supabase to stay within free tier limits
+
+
+________________
+
+
+7. Feature Specifications
+7.1 Patron-Facing Features
+
+
+Feature
+	Full Specification
+	Homepage / Discovery Feed
+	Dynamic, personalized homepage. Hero section with animated book cover carousel (Framer Motion). Sections: "For You" (AI recs), "Trending This Week" (most checkouts), "New Arrivals" (last 14 days), "Staff Picks" (curated by librarians), "Continue Reading" (current loans), "Near You" (branch-specific). All sections load via React Server Components with ISR. Skeleton loading states for all sections.
+	Universal Search
+	Persistent search bar in header. Supports: keyword, ISBN, author, subject. Keyboard shortcut Cmd/Ctrl+K opens command palette. Results page shows: book cards with cover, title, author, availability badge, rating. Filters: genre, language, year, availability, format (physical/ebook/audiobook). Sort: relevance, date, rating, title A-Z. AI-powered "Did you mean?" and zero-result suggestions.
+	Book Detail Page
+	Full book information page. Sections: hero (cover image, title, metadata), AI Summary (collapsible), Availability (real-time copy count + branch map), Similar Books carousel, Community Reviews, Reading List add button, Hold/Checkout CTA, Share button, Citation generator (APA/MLA/BibTeX). Cover images loaded from Supabase Storage with Unsplash fallback.
+	My Library Dashboard
+	Patron personal hub. Tabs: Current Loans (with due-date countdown timer), Holds Queue (position + estimated wait), Reading History, Favorites, My Lists, Badges & Streaks, Fines & Payments. All data real-time via Supabase subscriptions.
+	Reading Lists
+	Patron can create unlimited lists. Public lists visible to other patrons and shareable via link. Lists have: name, description, cover (auto-selected from first book), privacy toggle. Drag-and-drop book reordering. AI can generate list description.
+	Reviews & Ratings
+	5-star rating with optional text review. Helpful voting (up/down). Reviews moderated by AI sentiment filter before going live. Patron can edit/delete own reviews. Librarians can feature or hide reviews.
+	Notifications Center
+	Bell icon in header with unread count badge. Notification types: hold ready, due date reminder (3 days, 1 day), overdue alert, fine issued, event reminder, new book in favorite genre, reading streak milestone. Mark all read, filter by type, link to relevant page.
+	Digital Checkout
+	For ebooks/audiobooks: one-click borrow (respects license limits), in-browser EPUB reader (using epub.js), audio player for audiobooks, download as PDF/EPUB option for DRM-free content, progress sync across devices via Supabase.
+	Event Discovery
+	Library events page. Calendar and list view. Filter by branch, event type, date. One-click registration. iCal export. AI-generated event summaries. Waitlist when capacity full. Reminder notification 24hr before.
+	Gamification
+	Reading streaks (daily check-in), badges earned by milestones (first book, 10 books, genre explorer, night owl, speedreader, etc.), points leaderboard (opt-in), weekly reading challenges, grade/reading level progress tracker for students.
+	QR Code Integration
+	Each patron has a QR code on their profile (library card). Each book has a QR code on its detail page (for easy mobile scanning at kiosk). Patrons can scan book QR code with phone camera to open book detail page instantly.
+	Accessibility
+	WCAG 2.1 AA compliance. Full keyboard navigation. Screen reader support with proper ARIA labels. High contrast mode toggle. Text size adjustment. RTL language support (Arabic, Hebrew, Urdu). Focus-visible indicators on all interactive elements.
+	PWA (Progressive Web App)
+	Installable on iOS and Android. Offline access to current loans and reading lists. Push notifications via Web Push API. App icon, splash screen, manifest.json. Offline-first service worker caches key pages.
+	
+
+7.2 Librarian-Facing Features
+
+
+Feature
+	Full Specification
+	Librarian Dashboard
+	At-a-glance operational view. KPI cards: books checked out today, active holds, overdue loans, new patron registrations, fines collected. Alert panel: urgent overdue items, low-copy books with high holds, expiring memberships. Quick-action buttons: check in, check out, add book, register patron.
+	Check-In / Check-Out
+	Full-screen scanning mode (webcam or USB barcode scanner via QuaggaJS). Scan patron QR + book barcode to execute checkout in < 1 second. Auto-calculates due date based on book type and patron membership. Prints receipt (PDF or thermal) or emails receipt via Resend. Bulk check-in mode for book drops.
+	Catalog Management
+	Full CRUD for book catalog. ISBN scanner auto-fills metadata via Open Library + Google Books + Kimi AI. Manual entry form with all schema fields. Bulk import via CSV upload. Bulk status update (withdraw, lost, damaged). Cover image upload to Supabase Storage or search Unsplash. Version history for catalog edits (stored in staff_activity_log).
+	Patron Management
+	Full patron profile management. View patron history, current loans, holds, fines, and reviews. Issue, renew, or waive fines. Suspend or reinstate accounts. Add notes to patron profile. Merge duplicate accounts. Print library card PDF with patron QR code.
+	Hold Queue Management
+	Visual queue management interface. Drag-to-reorder holds for priority patrons. Notify patron when hold is ready (auto-notify via Supabase Function + Resend). Set hold expiration (default 3 days). Mark holds as filled or cancelled.
+	Reports Engine
+	Pre-built reports: Daily circulation summary, Overdue items list (exportable CSV), Most popular books, Patron activity summary, Fine collection report, Genre/subject circulation trends, New acquisitions list, Collection gap analysis. Custom date ranges. Export to CSV or PDF. Schedule automated email delivery of reports.
+	Acquisition Workflow
+	Patron-submitted acquisition requests reviewed in workflow board (Kanban: requested > reviewing > approved > ordered > received > cataloged). AI priority score shown per request. Librarian can approve, reject with reason, or defer. Budget tracking per acquisition cycle.
+	Event Management
+	Full event CRUD. Event types: author talk, book club, children's story time, workshop, exhibition. Set capacity, location, registration form fields. Attendee management: view registrations, send updates, mark attendance. AI generates promotional description in 3 formats.
+	Digital Resources Management
+	Manage ebook/audiobook licenses: upload files to Supabase Storage, set license limits (concurrent users), link to external providers (Project Gutenberg, Standard Ebooks), track usage statistics.
+	Branch Management
+	For multi-branch libraries: manage hours, location (map pin), staff assignments, book transfer requests between branches, branch-specific stats on dashboard.
+	
+
+7.3 Admin Features
+
+
+Feature
+	Full Specification
+	System Analytics Dashboard
+	Executive-level analytics with Recharts visualizations. Charts: monthly circulation trends (line), genre popularity (bar), patron demographics (pie), peak usage hours (heatmap), AI feature adoption (funnel), search query analysis (word cloud via d3-cloud). Date range picker, branch filter, export to PDF report.
+	Staff Role Management
+	RBAC (Role-Based Access Control) via Supabase RLS. Roles: patron, librarian, senior_librarian, admin, superadmin. Permission matrix UI showing what each role can access. Invite staff via email. View/revoke sessions. Activity log per staff member.
+	System Configuration
+	Library-wide settings: name, logo, branches, loan periods per book type, renewal limits, fine rates per day/type, hold expiration, notification email templates, membership types and durations, open/close hours.
+	AI Usage Dashboard
+	Monitor NVIDIA NIM API usage: total tokens used, feature breakdown (chat vs summaries vs cataloging), cost estimation, cache hit rate, average response time, error rate. Set daily token budgets per feature. Toggle individual AI features on/off.
+	Audit Log
+	Full audit trail of all system actions. Searchable by: staff member, action type, entity, date range. Immutable log stored in staff_activity_log. Export to CSV for compliance. Flag and investigate suspicious activity.
+	Data Management
+	Bulk import/export tools. OpenLibrary catalog sync (import up to 100K books). Patron data export (GDPR compliance). Database backup status indicator. Supabase Storage usage gauge. System health dashboard (response times, DB connections, error rates).
+	Notification Templates
+	Visual template editor (rich text) for all email and in-app notification types. Variables: {patron_name}, {book_title}, {due_date}, etc. Preview before saving. Test send to self. Templates stored as HTML in Supabase with Resend for delivery.
+	
+
+________________
+
+
+8. UI/UX Design System & Requirements
+8.1 Design Philosophy
+Nexus UI is designed to feel like a premium consumer product — think Notion meets Linear meets a luxury bookstore. Every screen must pass the "first impression test": a non-technical patron should feel delighted and immediately understand what to do. The design system is built on three pillars:
+
+
+* Clarity: Information hierarchy is always obvious. The most important action on any screen is the most visually prominent. No cognitive overload.
+* Delight: Micro-interactions, smooth transitions, and subtle animations reward engagement without distracting from function. Every hover, click, and state change has a thoughtful animation.
+* Inclusivity: Beautiful design that is also fully accessible. No contrast failures. No keyboard traps. No motion sickness from excessive animation (respects prefers-reduced-motion).
+
+
+8.2 Design Tokens
+Token Category
+	Values
+	Dark Mode Alt.
+	Usage
+	--color-primary
+	#1A3C5E (navy)
+	#2A5FA8
+	Headers, key text, primary CTA bg
+	--color-accent
+	#2D7DD2 (blue)
+	#5BA3E8
+	Links, badges, highlights
+	--color-success
+	#14A085 (teal)
+	#1DC9A8
+	Available status, success states
+	--color-warning
+	#E67E22 (orange)
+	#F39C12
+	Due dates, warnings
+	--color-danger
+	#E74C3C (red)
+	#FF6B6B
+	Overdue, errors, fines
+	--font-display
+	Playfair Display (serif)
+	Same
+	H1 headings, hero text
+	--font-body
+	Inter (sans-serif)
+	Same
+	All body text, UI labels
+	--font-mono
+	JetBrains Mono
+	Same
+	Code, patron IDs, ISBNs
+	--radius-sm
+	6px
+	Same
+	Badges, chips, small elements
+	--radius-md
+	12px
+	Same
+	Cards, inputs, buttons
+	--radius-lg
+	20px
+	Same
+	Modals, panels, large cards
+	--shadow-book
+	0 8px 32px rgba(0,0,0,0.12)
+	Adjusted
+	Book card hover elevation
+	--transition-fast
+	150ms cubic-bezier(0.4,0,0.2,1)
+	Same
+	Hover states, toggles
+	--transition-smooth
+	300ms cubic-bezier(0.4,0,0.2,1)
+	Same
+	Page transitions, modals
+	
+
+8.3 Key UI Components (shadcn/ui + Custom)
+Component
+	Specifications
+	BookCard
+	The most frequently rendered component. Variants: grid (portrait, shows cover + title + author + availability chip), list (horizontal, adds genre tags + summary snippet), featured (large, full-bleed cover with gradient overlay text). Hover: smooth lift animation (translateY -4px, shadow increase). Availability chip: green "Available" / yellow "X of Y" / red "All Checked Out" / blue "eBook". Lazy-load cover image with blur-hash placeholder.
+	AvailabilityBadge
+	Real-time status indicator subscribed to Supabase Realtime. Pulses (CSS animation) when status changes. Color-coded dot + text. Shows exact copy count. Clicking opens availability detail popup (copies by branch).
+	AIChat Sidebar
+	Fixed right-side panel (desktop) or full-screen drawer (mobile). Chat history with message bubbles (user = right, AI = left with Nexus logo avatar). Typing indicator animation (3 pulsing dots). Copy message button. Suggested prompt chips below input. Context-aware: knows what page patron is on. Dismiss with Escape key.
+	SearchCommandPalette
+	Full-screen overlay triggered by Cmd+K or clicking search. Instant results as user types (debounced 200ms). Result groups: Books, Authors, Subjects, Lists, Events. Recent searches stored in localStorage. Keyboard navigation (arrow keys + Enter). Book cover thumbnail in results.
+	CoverImage
+	Smart image component. Priority: (1) Supabase Storage uploaded cover, (2) Open Library cover API, (3) Google Books thumbnail, (4) Unsplash search by title/genre. Blur-hash placeholder while loading. Error state: elegant placeholder with book icon + title initial. All covers cached via Next.js image optimization.
+	DueDateTimer
+	Countdown display for loan due dates. > 7 days: green with calendar icon. 3–7 days: yellow with clock icon. 1–3 days: orange with urgency pulse. Overdue: red with warning icon + fine amount. Click to renew (if eligible).
+	HoldQueuePosition
+	Visual queue indicator. Progress bar showing position (e.g., 3 of 8). Estimated wait time calculation based on average loan duration. Notification toggle per hold. Cancel hold button with confirmation modal.
+	ReaderProgress
+	For ebook checkouts. Circular progress ring (%) + pages remaining. Reading speed estimate ("~45 min remaining"). Session timer. Chapter list drawer.
+	BadgeDisplay
+	Gamification badges rendered as illustrated icons with rarity glow effects (common=gray, rare=blue, epic=purple, legendary=gold animated shimmer). Hover tooltip shows badge name, description, and earn date. Locked badges shown in grayscale.
+	LibrarianQuickAction
+	Floating action button (FAB) in bottom-right visible only to librarians. Expands to speed-dial with: Scan to Check Out, Scan to Return, Add New Book, Register Patron. Each with icon + label.
+	AdminKPICard
+	Dashboard metric card. Shows: icon (Lucide), label, value (large, bold), trend vs last period (up/down arrow + %). Click drills into detail report. Loading skeleton matches card dimensions.
+	DataTable
+	Powered by TanStack Table v8. Features: sorting (all columns), filtering (global + per-column), pagination, row selection (bulk actions), column visibility toggle, CSV export. Sticky header. Zebra striping. Mobile-responsive (horizontal scroll with fixed first column).
+	
+
+8.4 Page Layouts & Routes
+Route
+	Access
+	Layout Description
+	/
+	Public
+	Hero + personalized sections. Sticky nav with search. AI chat FAB.
+	/books
+	Public
+	Search results + filter sidebar. Grid/list toggle. Infinite scroll.
+	/books/[id]
+	Public
+	Full-width book detail. Two-column: content left, actions right.
+	/authors/[name]
+	Public
+	Author profile + all works grid. Bio via Wikipedia API.
+	/events
+	Public
+	Events calendar + list. Branch filter. Map view (Leaflet).
+	/my-library
+	Patron
+	Tabbed personal hub. Real-time loan + hold status.
+	/my-library/reading-lists
+	Patron
+	List management. Create, edit, share lists.
+	/my-library/achievements
+	Patron
+	Badges gallery, streak calendar, leaderboard.
+	/profile
+	Patron
+	Account settings, preferences, notification controls.
+	/librarian
+	Librarian
+	Operations dashboard. KPIs + alerts + quick actions.
+	/librarian/catalog
+	Librarian
+	Catalog management with AI assist.
+	/librarian/patrons
+	Librarian
+	Patron list + profile management.
+	/librarian/circulation
+	Librarian
+	Scanning interface for check-in/out.
+	/librarian/holds
+	Librarian
+	Hold queue management.
+	/librarian/reports
+	Librarian
+	Report builder + pre-built reports.
+	/admin
+	Admin
+	Executive analytics dashboard.
+	/admin/staff
+	Admin
+	Staff management + role assignment.
+	/admin/settings
+	Admin
+	System configuration.
+	/admin/ai-monitor
+	Admin
+	AI usage + cost dashboard.
+	/admin/acquisitions
+	Admin
+	Acquisition request pipeline.
+	
+
+________________
+
+
+9. External API Integrations
+9.1 Integration Specifications
+API / Service
+	Integration Specification
+	Open Library API (openlibrary.org)
+	No auth required. Endpoints: /api/books?bibkeys=ISBN:{isbn}&format=json&jscmd=data (book metadata), /search.json?q={query}&limit=20 (search), /works/{work_id}.json (full work). Use: auto-fill on ISBN scan, bulk catalog import, author pages. Cache all responses in Supabase for 30 days. Run nightly sync job for popular books via Supabase Cron.
+	Google Books API
+	API key via env var GOOGLE_BOOKS_KEY. Free: 1,000 requests/day. Endpoint: https://www.googleapis.com/books/v1/volumes?q=isbn:{isbn}. Use: supplemental metadata when Open Library lacks data (subtitle, categories, page count). Fallback for cover images via imageLinks.thumbnail.
+	Unsplash API
+	API key via env var UNSPLASH_ACCESS_KEY. Free: 50 requests/hour (demo), 5,000/hour (after approval). Endpoint: https://api.unsplash.com/search/photos?query={genre}+books&per_page=1. Use: aesthetic fallback cover images when no ISBN cover is available. Cache photo_id in book.unsplash_cover_id. Always credit photographer as required by Unsplash guidelines.
+	Resend (email)
+	API key via env var RESEND_API_KEY. Free: 100 emails/day, 3,000/month. Use: hold-ready notifications, overdue reminders, welcome email, event confirmations, weekly reading reports. Templates stored in Supabase, rendered with React Email components. Queue emails via Supabase Database Webhooks + Supabase Edge Functions.
+	Wikipedia API
+	No auth required. Endpoint: https://en.wikipedia.org/api/rest_v1/page/summary/{author_name}. Use: author bio on author profile pages. Graceful fallback if no article found.
+	Hugging Face Inference API
+	Free tier. API key via env var HF_API_KEY. Model: sentence-transformers/all-MiniLM-L6-v2 for generating 384-dim embeddings. Use: generate book embeddings on cataloging, generate query embedding for semantic search. Cache embeddings in pgvector. Run in background via Supabase Edge Function.
+	MeiliSearch Cloud (free)
+	API keys via env vars MEILISEARCH_HOST + MEILISEARCH_ADMIN_KEY. Free: 100,000 docs. Use: fast full-text catalog search as complement to Supabase full-text. Index: books (title, authors, description, ai_tags). Sync on book create/update via Supabase webhook.
+	Standard Ebooks (standardebooks.org)
+	No auth required. Use their catalog feed (OPDS/JSON) to import free, high-quality DRM-free ebook links for public domain works. Import as digital_resources records linked to catalog books.
+	Project Gutenberg API
+	Endpoint: https://gutendex.com/books/?search={title}. No auth. Use: link free ebook downloads for public domain books in catalog. Show on book detail page when available.
+	Leaflet.js + OpenStreetMap
+	Completely free. Use: branch locations map on /events page and on book availability popup. Leaflet.js for rendering. OSM tiles (no API key needed). Geocode branch addresses using Nominatim API (OSM, free).
+	Web Push API (browser native)
+	No API key. Requires VAPID keys generated once and stored in env vars. Use: push notifications for holds ready, due date reminders, reading streak reminders. Service worker registers push subscription stored in Supabase (patron push_subscriptions table).
+	Vercel Analytics + Speed Insights
+	Auto-enabled on Vercel. No configuration needed. Provides: Core Web Vitals, page view tracking, geographic distribution. Dashboard in Vercel console. Respect user privacy — no PII collected.
+	
+
+________________
+
+
+10. Security, Auth & Supabase RLS Policies
+10.1 Authentication Flow
+Authentication is handled entirely by Supabase Auth. The system supports:
+
+
+* Email + Password (primary method for patrons and staff)
+* Magic Link (passwordless email login for patrons)
+* OAuth: Google and GitHub (optional, for patron convenience)
+* Staff accounts created by admins via invite — no self-registration for librarian+ roles
+* JWT tokens stored in httpOnly cookies (not localStorage) via @supabase/ssr
+* Session refresh: automatic via Supabase middleware in Next.js middleware.ts
+* MFA (TOTP): Required for admin and superadmin roles via Supabase Auth MFA
+
+
+10.2 Row Level Security Policies
+Every table in Supabase must have RLS enabled. The following policies are MANDATORY — the AI agent must implement all of them before any table is considered done.
+	
+
+Table / Policy
+	Policy Definition
+	books — Public Read
+	POLICY: SELECT for authenticated and anon. USING: is_active = true. All authenticated users and anonymous visitors can read active books.
+	books — Librarian Write
+	POLICY: INSERT, UPDATE, DELETE for authenticated. USING/CHECK: auth.jwt()->>role IN (librarian, admin, superadmin). Only library staff can modify catalog.
+	users — Own Profile Read
+	POLICY: SELECT for authenticated. USING: id = auth.uid(). Patrons can only read their own profile row.
+	users — Staff Read All
+	POLICY: SELECT for authenticated. USING: auth.jwt()->>role IN (librarian, admin, superadmin). Staff can read all patron profiles.
+	users — Own Profile Update
+	POLICY: UPDATE for authenticated. USING: id = auth.uid(). CHECK: role = OLD.role (patrons cannot self-escalate role).
+	loans — Own Loans Read
+	POLICY: SELECT for authenticated. USING: patron_id = auth.uid() OR auth.jwt()->>role IN (librarian, admin, superadmin).
+	loans — Librarian Write
+	POLICY: INSERT, UPDATE for authenticated. USING: auth.jwt()->>role IN (librarian, admin, superadmin).
+	holds — Own Holds Read/Write
+	POLICY: SELECT, INSERT for authenticated. USING: patron_id = auth.uid(). Patrons can create and view their own holds.
+	holds — Cancel Own Hold
+	POLICY: UPDATE for authenticated. USING: patron_id = auth.uid(). CHECK: status = cancelled (patrons can only cancel, not change to other statuses).
+	reviews — Public Read Approved
+	POLICY: SELECT for anon and authenticated. USING: is_approved = true. Only approved reviews are publicly visible.
+	reviews — Own Review Write
+	POLICY: INSERT, UPDATE, DELETE for authenticated. USING: patron_id = auth.uid().
+	ai_chats — Own Chats Only
+	POLICY: ALL for authenticated. USING: patron_id = auth.uid(). AI conversation history is strictly private.
+	staff_activity_log — Admin Read
+	POLICY: SELECT for authenticated. USING: auth.jwt()->>role IN (admin, superadmin). Only admins can read audit logs.
+	notifications — Own Notifications
+	POLICY: SELECT, UPDATE for authenticated. USING: patron_id = auth.uid(). Patrons can only read and mark-read their own notifications.
+	fines — Own Fines Read
+	POLICY: SELECT for authenticated. USING: patron_id = auth.uid() OR auth.jwt()->>role IN (librarian, admin, superadmin).
+	
+
+10.3 Additional Security Requirements
+* API rate limiting: implement via Supabase table (rate_limits) + Edge Function middleware. Limits: 100 searches/hour per IP, 20 holds/day per patron, 50 AI requests/day per patron.
+* Input sanitization: all user text inputs sanitized with DOMPurify before storage.
+* SQL injection: impossible via Supabase parameterized queries. Never use raw string interpolation in queries.
+* CORS: Next.js API Routes only accept requests from own domain. Supabase CORS configured to project URL only.
+* Secrets management: all API keys in Vercel environment variables (not committed to git). Supabase Vault used for NIM API key accessed only from Edge Functions.
+* Content Security Policy: strict CSP headers via next.config.js. No inline scripts.
+* File upload security: Supabase Storage policies restrict uploads to authenticated staff only, max 10 MB, allowed MIME types: image/jpeg, image/png, image/webp, application/epub+zip, audio/mpeg.
+
+
+________________
+
+
+11. Performance & Scalability Strategy
+11.1 Caching Architecture
+Data Type
+	Caching Strategy
+	Book catalog pages
+	ISR (Incremental Static Regeneration) with 60-second revalidation. revalidatePath() called on any catalog update. CDN-cached on Vercel Edge.
+	Book detail pages
+	ISR with 300-second revalidation. generateStaticParams() pre-builds top 1,000 books by popularity.
+	AI summaries
+	Cached in Supabase ai_summary column. TTL: 90 days. Cache key: book_id + model version.
+	AI recommendations
+	Cached in patron ai_reading_profile JSONB. Recomputed daily via Supabase Cron at 3 AM UTC.
+	Search results
+	Client-side cache via SWR (stale-while-revalidate). TTL: 30 seconds. Deduplicated concurrent requests.
+	Book availability
+	No caching — always real-time via Supabase Realtime subscription on book.available_copies.
+	External API responses
+	Open Library, Google Books, Wikipedia: cached in Supabase (external_api_cache table) for 30 days. Saves API calls and improves speed.
+	Images
+	Next.js Image Optimization with Vercel CDN. Unsplash images proxied through Next.js to enable caching. All images converted to WebP.
+	
+
+11.2 Database Query Optimization
+* Indexes: Create indexes on all FK columns, status columns, and date columns used in queries. Full-text search index on books(title, authors, description) using pg_trgm.
+* Pagination: All list queries use cursor-based pagination (not OFFSET). Page size: 20 items default, 50 maximum.
+* N+1 Prevention: All queries that fetch books with related data use JOIN or Supabase select() with nested selects. Never fetch books then individually query for each.
+* Connection pooling: Supabase uses PgBouncer in transaction mode. Use Supabase client (not direct Postgres URL) in all Next.js Route Handlers to leverage pooling.
+* pgvector: IVFFlat index on book embeddings with lists=100 for efficient ANN search.
+
+
+________________
+
+
+12. Deployment & DevOps
+12.1 Vercel Deployment Configuration
+The project uses Vercel's free Hobby plan. Configuration file vercel.json at project root:
+
+
+* Framework preset: Next.js (auto-detected)
+* Build command: next build
+* Output directory: .next
+* Install command: npm ci
+* Node.js version: 20.x
+* Root directory: / (monorepo root if applicable)
+* Regions: iad1 (US East, closest to most users). Add sfo1 (US West) as secondary if needed.
+* Environment variables: set all API keys in Vercel dashboard under Project Settings > Environment Variables. Separate values for Production, Preview, Development.
+* Edge Runtime: use Edge Runtime for middleware.ts and high-traffic API routes (search, availability).
+
+
+12.2 Supabase Project Configuration
+* Create project in region closest to primary user base (e.g., us-east-1)
+* Enable extensions: uuid-ossp, pgvector, pg_trgm, pg_cron
+* Apply all migrations from /supabase/migrations/ in order
+* Seed data: run /supabase/seed.sql to populate test data (50 patrons, 500 books, 200 loans)
+* Enable Realtime for tables: books (UPDATE on available_copies), notifications (INSERT), holds (UPDATE)
+* Configure Storage buckets: covers (public read, authenticated write), documents (authenticated read/write), avatars (public read, authenticated write)
+* Set up Supabase Cron jobs: daily_recommendations (0 3 * * *), overdue_fine_calculator (0 0 * * *), hold_expiry_check (0 */4 * * *), weekly_acquisition_report (0 8 * * 1)
+* Configure Supabase Edge Functions: send-notification, process-ai-queue, sync-open-library, generate-embeddings
+
+
+12.3 CI/CD Pipeline
+* GitHub repository with branch protection on main (require PR review, status checks)
+* Vercel auto-deploys: main branch → Production, feature/* branches → Preview URLs
+* GitHub Actions workflow: run type-check (tsc --noEmit), lint (eslint), unit tests (vitest) on every PR
+* Supabase CLI used for local development: supabase start (local DB + Auth + Storage)
+* Database migrations: all schema changes via Supabase migration files (never direct DB edits in production)
+* Environment parity: local development uses Supabase local emulator, same schema as production
+
+
+________________
+
+
+13. Development Phases & Build Order
+This is the recommended build order for the AI agent. Complete each phase fully (including tests and RLS policies) before proceeding to the next. Each phase results in a deployable, usable state.
+	
+
+Phase 1: Foundation (Week 1–2) — Priority: CRITICAL
+19. Initialize Next.js 14 project with TypeScript, Tailwind, shadcn/ui, ESLint, Prettier
+20. Set up Supabase project: create all tables, indexes, RLS policies from Section 5
+21. Implement Supabase Auth: email/password, magic link, session management, middleware
+22. Build design system: all design tokens, typography scale, color system in globals.css
+23. Implement core layout: navigation (desktop + mobile), footer, page shell components
+24. Build BookCard, CoverImage, AvailabilityBadge, and LoadingSkeleton components
+25. Implement book catalog: /books listing page with search, filters, pagination
+26. Implement book detail page: /books/[id] with all metadata sections
+27. Set up Vercel deployment with all environment variables
+
+
+Phase 2: Core Circulation (Week 3–4) — Priority: CRITICAL
+28. Build patron registration and login pages
+29. Implement My Library dashboard (/my-library) with loans, holds tabs
+30. Build hold placement system with real-time queue position updates
+31. Implement librarian dashboard (/librarian) with KPI cards
+32. Build check-in / check-out scanning interface (QuaggaJS + webcam)
+33. Implement fine calculation and payment recording
+34. Build patron management interface (/librarian/patrons)
+35. Set up email notifications via Resend for holds and overdue
+
+
+Phase 3: AI Integration (Week 5–6) — Priority: HIGH
+36. Implement NVIDIA NIM Kimi K2 service layer (lib/ai/nexus-ai.ts)
+37. Build NexusBot AI chat sidebar with streaming SSE
+38. Implement semantic search with Hugging Face embeddings + pgvector
+39. Build AI-assisted cataloging workflow
+40. Implement AI book summaries and tag generation
+41. Build AI recommendation engine and "For You" homepage section
+42. Implement AI usage monitoring dashboard (/admin/ai-monitor)
+
+
+Phase 4: Advanced Features (Week 7–8) — Priority: HIGH
+43. Build report engine (/librarian/reports) with all pre-built reports
+44. Implement gamification: badges, reading streaks, points, leaderboard
+45. Build reading lists (create, share, manage)
+46. Implement digital checkout (ePub reader, audiobook player)
+47. Build events management (CRUD + public calendar + registration)
+48. Implement admin analytics dashboard with Recharts visualizations
+49. Build acquisition request workflow (Kanban board)
+
+
+Phase 5: Polish & Scale (Week 9–10) — Priority: MEDIUM
+50. Implement PWA: manifest.json, service worker, offline support, push notifications
+51. Open Library bulk catalog import (up to 100K books)
+52. MeiliSearch integration for advanced search
+53. Performance optimization: ISR tuning, image optimization audit, bundle analysis
+54. Accessibility audit: WCAG 2.1 AA remediation, screen reader testing
+55. Dark mode implementation (system preference + manual toggle)
+56. Multi-branch support: branch management, inter-branch transfers
+57. Comprehensive test suite: unit tests (Vitest), E2E tests (Playwright)
+
+
+________________
+
+
+14. Testing Requirements
+14.1 Testing Strategy
+Test Type
+	Requirements & Tools
+	Unit Tests (Vitest)
+	Coverage target: 80% for all utility functions and AI service layer. Test files co-located with source (___.test.ts). Key test suites: AI prompt builders, fine calculation logic, availability status computation, date/renewal calculation, search query processing, RLS policy logic (using Supabase local emulator).
+	Component Tests (Vitest + Testing Library)
+	Test all 20+ UI components in isolation. Key scenarios: BookCard renders all 3 variants, AvailabilityBadge shows correct color/text per status, DueDateTimer shows correct urgency, AIChat sends and receives messages, DataTable sorts and filters correctly.
+	Integration Tests (Playwright)
+	Critical user journeys tested end-to-end: patron search → view book → place hold flow, librarian scan → checkout → receipt flow, AI chat conversation flow, patron registration and first login, admin generates and exports report.
+	Performance Tests (Lighthouse CI)
+	Run Lighthouse in CI on every PR. Fail PR if: Performance < 90, Accessibility < 95, Best Practices < 90, SEO < 90. Test on both mobile and desktop profiles.
+	Security Tests
+	Test all RLS policies using Supabase test helpers. Verify: patron cannot read other patron data, patron cannot modify own role, librarian cannot access admin routes, anonymous user cannot write any data. Test rate limiting triggers correctly.
+	AI Feature Tests
+	Mock NVIDIA NIM API in tests. Verify: streaming works correctly, error handling on API failure, rate limit enforcement, cache hit/miss behavior, prompt injection prevention (test adversarial prompts).
+	
+
+________________
+
+
+15. Open Source & Compliance
+15.1 License & Repository
+* Repository: GitHub, public, MIT License
+* README.md: comprehensive setup guide, demo link, feature list, screenshots, contribution guide
+* CONTRIBUTING.md: coding standards, PR process, issue templates
+* CODE_OF_CONDUCT.md: Contributor Covenant v2.1
+* .env.example: template with all required environment variables (no values)
+
+
+15.2 API Attribution Requirements
+* Unsplash: display photographer credit ("Photo by [name] on Unsplash") on any page showing Unsplash image. Required by their API guidelines.
+* Open Library: attribute Internet Archive/Open Library in about page or footer.
+* OpenStreetMap: display "© OpenStreetMap contributors" on all map tiles.
+* Standard Ebooks: attribute standardebooks.org for any ebook content sourced from their catalog.
+
+
+15.3 Privacy & Data Compliance
+* GDPR compliance: patron data export (downloadable JSON), account deletion (full data purge), cookie consent banner for analytics.
+* COPPA: users under 13 require parental consent. Date-of-birth collected at registration. Under-13 accounts flagged, AI chat disabled, parental notification feature available.
+* Data retention: loan history retained 7 years (legal requirement). AI chat logs retained 90 days. Anonymous search analytics retained 2 years.
+* Privacy policy page (/privacy) and Terms of Service (/terms) pages required before launch.
+
+
+________________
+
+
+16. Launch Acceptance Criteria
+All items in this section must pass before the system is considered production-ready. The AI agent should use this as a final checklist.
+	
+
+16.1 Functional Checklist
+* A patron can register, log in, search for books, place a hold, and receive a notification — all without contacting a librarian
+* A librarian can scan an ISBN, have AI auto-fill all metadata, and publish a new book to the catalog in under 2 minutes
+* A librarian can scan a patron card and book barcode to complete a checkout in under 10 seconds
+* NexusBot AI chat responds to natural language questions about the catalog and library policies
+* All 14 AI features described in Section 6.1 are implemented and working
+* Realtime availability updates: checking out a book immediately updates the available_copies count for all users viewing that book page
+* Hold queue correctly manages multiple patrons waiting for the same book
+* Fine calculation runs automatically for overdue books via Supabase Cron
+* Email notifications send correctly for all notification types
+* Admin analytics dashboard displays accurate data with correct chart rendering
+
+
+16.2 Performance Checklist
+* Homepage Lighthouse Performance score: ≥ 95 on desktop, ≥ 90 on mobile
+* Time to First Contentful Paint (FCP): < 1.0 s on desktop (3G: < 2.5 s)
+* Cumulative Layout Shift (CLS): < 0.05
+* All database queries complete in < 200 ms (check via Supabase query logs)
+* AI streaming: first token appears within 2 seconds of request
+* Search results appear within 500 ms of query submission
+* Application is functional with 0 JavaScript enabled (SSR provides base functionality)
+
+
+16.3 Security Checklist
+* All RLS policies from Section 10.2 implemented and tested with Supabase test suite
+* No API keys visible in client-side JavaScript bundle (check via browser DevTools)
+* All environment variables configured in Vercel, not committed to git
+* Content Security Policy headers present and validated (no unsafe-inline for scripts)
+* Rate limiting active and tested for AI endpoints
+* Admin routes return 403 when accessed by non-admin authenticated users
+* Patron cannot access another patron's loans, holds, or AI chat history
+
+
+16.4 Accessibility Checklist
+* All pages score ≥ 95 on Lighthouse Accessibility audit
+* Full keyboard navigation verified: tab order logical, no keyboard traps, all modals dismissable with Escape
+* Screen reader tested (VoiceOver/NVDA): all interactive elements have descriptive labels
+* Color contrast ratio ≥ 4.5:1 for normal text, ≥ 3:1 for large text (verified with axe-core)
+* All images have descriptive alt text (empty alt for decorative images)
+* Form validation errors announced to screen readers
+
+
+________________
+
+
+17. Glossary & Reference
+17.1 Key Abbreviations
+Term
+	Definition
+	LMS
+	Library Management System — software used to manage library operations
+	ISBN
+	International Standard Book Number — unique book identifier (10 or 13 digits)
+	DDC
+	Dewey Decimal Classification — the most widely used library classification system
+	RLS
+	Row Level Security — Supabase/PostgreSQL feature for per-row data access control
+	ISR
+	Incremental Static Regeneration — Next.js technique for updating static pages on demand
+	NIM
+	NVIDIA Inference Microservice — NVIDIA's cloud API for running AI models
+	SSE
+	Server-Sent Events — protocol for server-to-client streaming (used for AI streaming)
+	pgvector
+	PostgreSQL extension for storing and querying vector embeddings
+	ANN
+	Approximate Nearest Neighbor — fast vector similarity search algorithm
+	OPDS
+	Open Publication Distribution System — catalog format for digital books
+	PWA
+	Progressive Web App — web app with native app capabilities (offline, push, installable)
+	DRM
+	Digital Rights Management — technology restricting use of digital content
+	RBAC
+	Role-Based Access Control — permission system based on user roles
+	WCAG
+	Web Content Accessibility Guidelines — international accessibility standard
+	FTS
+	Full-Text Search — database feature for searching text content efficiently
+	CLS
+	Cumulative Layout Shift — Core Web Vital measuring visual stability
+	LCP
+	Largest Contentful Paint — Core Web Vital measuring load speed
+	
+
+17.2 Key API Endpoints Reference
+Endpoint / Service
+	URL & Notes
+	NVIDIA NIM Chat API
+	https://integrate.api.nvidia.com/v1/chat/completions — POST — requires NVIDIA_API_KEY header
+	Open Library Book Data
+	https://openlibrary.org/api/books?bibkeys=ISBN:{isbn}&format=json&jscmd=data
+	Open Library Search
+	https://openlibrary.org/search.json?q={query}&limit=20&fields=key,title,author_name,cover_i
+	Open Library Covers
+	https://covers.openlibrary.org/b/isbn/{isbn}-L.jpg — direct image URL
+	Google Books
+	https://www.googleapis.com/books/v1/volumes?q=isbn:{isbn}&key={GOOGLE_BOOKS_KEY}
+	Unsplash Search
+	https://api.unsplash.com/search/photos?query={query}&per_page=1&client_id={UNSPLASH_KEY}
+	Wikipedia Summary
+	https://en.wikipedia.org/api/rest_v1/page/summary/{title} — GET — no auth
+	Project Gutenberg Search
+	https://gutendex.com/books/?search={title} — no auth
+	HuggingFace Embeddings
+	https://api-inference.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2
+	Nominatim Geocoding
+	https://nominatim.openstreetmap.org/search?q={address}&format=json — add User-Agent header
+	Resend Email API
+	https://api.resend.com/emails — POST — requires Authorization: Bearer {RESEND_KEY}
+	
+
+
+
+END OF PRD — NEXUS LIBRARY MANAGEMENT SYSTEM v1.0
+This document is the complete build specification. No section is optional. Begin with Phase 1.

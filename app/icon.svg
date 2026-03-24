@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title id="title">Nexus Library Favicon</title>
+  <desc id="desc">Rounded square with a golden book and monogram N.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#5a4100" />
+      <stop offset="100%" stop-color="#b88700" />
+    </linearGradient>
+    <linearGradient id="paper" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fff4bf" />
+      <stop offset="100%" stop-color="#ffe08a" />
+    </linearGradient>
+  </defs>
+
+  <rect x="12" y="12" width="232" height="232" rx="48" fill="url(#bg)" />
+
+  <path d="M72 70c0-10 8-18 18-18h70c14 0 24 10 24 24v102c0 6-5 10-10 10h-76c-10 0-18 8-18 18V70z"
+        fill="url(#paper)" opacity="0.97" />
+
+  <path d="M72 71c0-10 8-19 18-19h66v128H96c-9 0-17 4-24 10V71z"
+        fill="#ffe39a" opacity="0.97" />
+
+  <path d="M98 88h20l26 44V88h16v80h-19l-27-45v45H98V88z"
+        fill="#7a5200" />
+</svg>
